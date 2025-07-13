@@ -1,8 +1,5 @@
 from django.db import models
 from django.core.validators import MinValueValidator
-
-
-
 class  Job(models.Model):
     STATUS_CHOICES = [
          ('active', 'Active'),
@@ -28,4 +25,3 @@ def soft_delete(self):
     self.status = 'inactive'
     self.save()
     
-# Create your models here.
