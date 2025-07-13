@@ -15,7 +15,7 @@ class JobSerializer(serializers.ModelSerializer):
         return value  
     
 class JobCreateSerializer(JobSerializer):
-    class Meta(JobSerializer.Meta):
+    class Meta(JobSerializer):
         fields = [
             'title', 'description', 'company_name', 
             'location', 'salary'
