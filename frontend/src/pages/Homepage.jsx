@@ -1,14 +1,35 @@
-import React, { useEffect, useState } from 'react';
-import { fetchJobs } from '../api/jobs';
+import React, {  useEffect, useState } from 'react';
+import { ArrowLeft } from 'lucide-react';
+// import { useNavigate } from 'react-router-dom';
+import { fetchJobs, fetchJobById } from '../api/jobs';
 import { JobCard } from '../components/JobCard';
 import { JobDetail } from '../components/JobDetail';
 
-const HomePage = () => {
+export const HomePage = () => {
   const [jobs, setJobs] = useState([]);
+  const [jobDetails, setJobDetails] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [selectedJob, setSelectedJob] = useState(null);
+  const [selectedJobId, setSelectedJobId] = useState(null);
   const [currentView, setCurrentView] = useState('list'); 
+
+  useEffect(() => {
+    const loadJobDetails = async () => {
+      if (selectedJobId) {
+        try {
+          const jobData = await fetchJobById(selectedJobId);
+          setJobDetails(jobData);
+        } catch (err) {
+          setError('Failed to load job details');
+          console.error('Error loading job details:', err);
+        }
+      }
+    };
+
+    loadJobDetails();
+  }, [selectedJobId]);
+  
+
   useEffect(() => {
     const loadJobs = async () => {
       try {
@@ -26,24 +47,26 @@ const HomePage = () => {
     loadJobs();
   }, []);
 
-  const handleJobDelete = async (jobId) => {
-    // Add your delete logic here
-    try {
-      // await deleteJob(jobId); // Your delete API call
-      // Update the jobs list by removing the deleted job
-      setJobs(prevJobs => prevJobs.filter(job => job.id !== jobId));
-    } catch (err) {
-      console.error('Error deleting job:', err);
-    }
-  };
+
+
+//  handleJobDelete = async (jobId) => {
+//     // Add your delete logic here
+//     try {
+//       // await deleteJob(jobId); // Your delete API call
+//       // Update the jobs list by removing the deleted job
+//       setJobs(prevJobs => prevJobs.filter(job => job.id !== jobId));
+//     } catch (err) {
+//       console.error('Error deleting job:', err);
+//     }
+//   };
 
   const handleJobView = (job) => {
-    setSelectedJob(job);
+    setSelectedJobId(job.id);
     setCurrentView('detail');
   };
 
   const handleBackToList = () => {
-    setSelectedJob(null);
+    setSelectedJobId(null);
     setCurrentView('list');
   };
 
@@ -67,12 +90,14 @@ const HomePage = () => {
   if (currentView === 'detail') {
     return (
       <JobDetail 
-        job={selectedJob} 
+        jobId={selectedJobId} 
+        job={jobDetails}
         onBack={handleBackToList}
       />
     );
   }
 
+  // Show job list view
   return (
     <div className="container mx-auto px-4 py-8">
       <h1 className="text-3xl font-bold text-gray-800 mb-8">Job Listings</h1>
@@ -87,7 +112,7 @@ const HomePage = () => {
             <JobCard 
               key={job.id} 
               job={job}           
-              onDelete={handleJobDelete}  
+            //   onDelete={handleJobDelete}  
               onView={handleJobView}      
             />
           ))}
