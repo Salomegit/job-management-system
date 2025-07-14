@@ -10,8 +10,8 @@ from .serializers import JobSerializer, JobCreateSerializer, JobListSerializer
 
 class JobListCreateView(generics.ListCreateAPIView):
     
-    serializer_class = JobSerializer
-    
+    """Handles listing and creating jobs.
+    """    
     def get_queryset(self):
         
         queryset = Job.objects.all()
@@ -74,7 +74,7 @@ class JobDetailView(generics.RetrieveUpdateAPIView):
 @api_view(['PATCH'])
 def soft_delete_job(request, pk):
     job = get_object_or_404(Job, pk=pk)
-    job.soft_delete()
+    # job.soft_delete()
     
     if job.status == 'inactive':
         return Response(
@@ -88,7 +88,8 @@ def soft_delete_job(request, pk):
         {"message": "Job soft deleted successfully"},
         status=status.HTTP_204_NO_CONTENT
     )
-    
+
+@api_view(['GET'])
 def job_stats(request):
     total_jobs = Job.objects.count()
     active_jobs = Job.objects.filter(status='active').count()
