@@ -1,26 +1,52 @@
-import React from 'react';
-import { 
+import React, { useEffect, useState } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
+import {
   ArrowLeft,
-  MapPin, 
-  Building, 
-  DollarSign, 
+  MapPin,
+  Building,
+  DollarSign,
   Calendar,
   User,
   Clock,
   CheckCircle
 } from 'lucide-react';
+import { fetchJobById } from '../api/jobs'; // adjust path if needed
 
-export const JobDetail = ({ job, onBack }) => {
-  if (!job) {
+const JobDetail = () => {
+  const { id } = useParams();
+  const navigate = useNavigate();
+  const [job, setJob] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+
+  useEffect(() => {
+    const getJob = async () => {
+      try {
+        const data = await fetchJobById(id);
+        setJob(data);
+      } catch (error) {
+        console.error('Error fetching job details:', error);
+        setError('Failed to load job details');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    getJob();
+  }, [id]);
+
+  if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-6">
-        <div className="max-w-4xl mx-auto">
-          <div className="bg-white rounded-xl shadow-lg p-8">
-            <div className="text-center text-gray-600">
-              Job not found
-            </div>
-          </div>
-        </div>
+      <div className="min-h-screen flex items-center justify-center text-gray-600">
+        Loading job details...
+      </div>
+    );
+  }
+
+  if (error || !job) {
+    return (
+      <div className="min-h-screen flex items-center justify-center text-red-500">
+        {error || 'Job not found'}
       </div>
     );
   }
@@ -32,7 +58,7 @@ export const JobDetail = ({ job, onBack }) => {
           {/* Header */}
           <div className="flex items-center mb-6">
             <button
-              onClick={onBack}
+              onClick={() => navigate('/jobs')}
               className="mr-4 p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
             >
               <ArrowLeft className="h-5 w-5" />
@@ -68,7 +94,7 @@ export const JobDetail = ({ job, onBack }) => {
             </span>
           </div>
 
-          {/* Job Info Cards */}
+          {/* Info Cards */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
             <div className="bg-blue-50 rounded-lg p-4">
               <div className="flex items-center text-blue-600 mb-2">
@@ -101,7 +127,7 @@ export const JobDetail = ({ job, onBack }) => {
             </div>
           </div>
 
-          {/* Job Description Section */}
+          {/* Description */}
           <div className="space-y-8">
             <div>
               <h3 className="text-xl font-semibold text-gray-900 mb-4 flex items-center">
@@ -115,9 +141,6 @@ export const JobDetail = ({ job, onBack }) => {
               </div>
             </div>
 
-
-
-            {/* Additional Job Info */}
             <div className="border-t pt-6">
               <h3 className="text-xl font-semibold text-gray-900 mb-4">
                 Additional Information
@@ -142,14 +165,17 @@ export const JobDetail = ({ job, onBack }) => {
           {/* Action Buttons */}
           <div className="flex space-x-4 mt-8 pt-6 border-t">
             <button
-              onClick={onBack}
+              onClick={() => navigate('/')}
               className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-800 py-3 px-6 rounded-lg font-medium transition-colors"
             >
               Back to Jobs
             </button>
             {job.status === 'active' && (
-              <button className="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-3 px-6 rounded-lg font-medium transition-colors">
-                Apply Now
+              <button
+                onClick={() => navigate(`/jobs/${job.id}/edit`)}
+                className="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-3 px-6 rounded-lg font-medium transition-colors"
+              >
+                Edit Job
               </button>
             )}
           </div>
@@ -158,3 +184,5 @@ export const JobDetail = ({ job, onBack }) => {
     </div>
   );
 };
+
+export default JobDetail;

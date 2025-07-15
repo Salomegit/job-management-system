@@ -1,25 +1,27 @@
 import React from 'react';
-import { 
-  MapPin, 
-  Building, 
-  DollarSign, 
-  Calendar, 
+import { useNavigate } from 'react-router-dom';
+import {
+  MapPin,
+  Building,
+  DollarSign,
+  Calendar,
   Trash2,
   Eye
 } from 'lucide-react';
 
-export const JobCard = ({ job, onDelete, onView }) => {
+export const JobCard = ({ job, onDelete }) => {
+  const navigate = useNavigate(); 
+
   const handleSoftDelete = () => {
     if (onDelete) {
       onDelete(job.id);
     }
   };
 
+
   const handleView = () => {
-    if (onView) {
-      onView(job);
-    }
-  };
+    navigate(`/jobs/${job.id}`);
+  }
 
   return (
     <div className="bg-white rounded-xl shadow-lg hover:shadow-xl transition-shadow p-6 border border-gray-100">
@@ -47,7 +49,7 @@ export const JobCard = ({ job, onDelete, onView }) => {
           {job.status === 'active' ? 'Active' : 'Inactive'}
         </span>
       </div>
-      
+
       <div className="flex items-center justify-between">
         <div className="flex items-center text-gray-500 text-xs">
           <Calendar className="h-4 w-4 mr-1" />
@@ -58,6 +60,7 @@ export const JobCard = ({ job, onDelete, onView }) => {
             onClick={handleView}
             className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
             title="View Job Details"
+            // onView={onView}
           >
             <Eye className="h-4 w-4" />
           </button>
@@ -75,3 +78,5 @@ export const JobCard = ({ job, onDelete, onView }) => {
     </div>
   );
 };
+
+

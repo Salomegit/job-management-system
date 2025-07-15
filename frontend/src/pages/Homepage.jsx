@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { ArrowLeft, Search, Filter, Briefcase, MapPin, DollarSign, Clock, CheckCircle, XCircle } from 'lucide-react';
-import { fetchJobs, fetchJobById, fetchJobStats } from '../api/jobs';
-import { JobCard } from '../components/JobCard';
-import { JobDetail } from '../components/JobDetail';
+import { fetchJobs, fetchJobById, fetchJobStats, softDelete } from '../api/jobs';
+import  { JobCard }  from '../components/JobCard';
 import StatCard from '../components/StatCard';
 
 const HomePage = () => {
@@ -16,7 +15,40 @@ const HomePage = () => {
   const [selectedJobId, setSelectedJobId] = useState(null);
   const [currentView, setCurrentView] = useState('list');
   const [searchTerm, setSearchTerm] = useState('');
+  // const navigate = useNavigate();
 
+  const handleSoftDelete = async (jobId) => {
+    try {
+      const confirmed = window.confirm('Are you sure you want to deactivate this job?');
+      if (!confirmed) return;
+
+      await softDelete(jobId);
+      
+      setJobs(prevJobs => 
+        prevJobs.map(job => 
+          job.id === jobId 
+            ? { ...job, status: 'inactive' }
+            : job
+        )
+      );
+
+      // Update stats to reflect the change
+      setStats(prevStats => ({
+        ...prevStats,
+        active_jobs: prevStats.active_jobs - 1,
+        inactive_jobs: prevStats.inactive_jobs + 1
+      }));
+
+      // Show success message
+      alert('Job deactivated successfully!');
+      
+    } catch (error) {
+      console.error('Error deactivating job:', error);
+      alert('Failed to deactivate job. Please try again.');
+    }
+  };
+
+  // Load job details when selectedJobId changes
   useEffect(() => {
     const loadJobDetails = async () => {
       if (selectedJobId) {
@@ -33,6 +65,7 @@ const HomePage = () => {
     loadJobDetails();
   }, [selectedJobId]);
 
+  // Load jobs on component mount
   useEffect(() => {
     const loadJobs = async () => {
       try {
@@ -50,6 +83,7 @@ const HomePage = () => {
     loadJobs();
   }, []);
 
+  // Load stats on component mount
   useEffect(() => {
     const loadStats = async () => {
       try {
@@ -65,20 +99,23 @@ const HomePage = () => {
     loadStats();
   }, []);
 
-  const handleJobView = (job) => {
-    setSelectedJobId(job.id);
-    setCurrentView('detail');
-  };
+  // const handleJobView = (job) => {
+  //   setSelectedJobId(job.id);
+  //   setCurrentView('detail');
+  //   navigate(`/jobs/${job.id}`);
+  // };
 
   const handleBackToList = () => {
     setSelectedJobId(null);
     setCurrentView('list');
   };
 
+  // Fixed filteredJobs - check if job.company exists before calling toLowerCase()
   const filteredJobs = jobs.filter(job => 
-    job.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    job.company.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    job.location.toLowerCase().includes(searchTerm.toLowerCase())
+    job.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    job.company?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    job.company_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    job.location?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   if (loading) {
@@ -113,7 +150,7 @@ const HomePage = () => {
   }
 
   return (
-    <div className="flex-col items-center justify-center  mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div className="flex-col items-center justify-center mx-auto px-4 sm:px-6 lg:px-8 py-8">
       {/* Hero Section */}
       <div className="text-center mb-12">
         <h1 className="text-4xl font-bold text-gray-900 mb-4">
@@ -146,7 +183,8 @@ const HomePage = () => {
         </div>
       </div>
       
-     {!statsLoading && stats && (
+      {/* Stats Cards */}
+      {!statsLoading && stats && (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
           <StatCard
             icon={<Briefcase />}
@@ -171,7 +209,9 @@ const HomePage = () => {
           />
         </div>
       )}
-        {statsLoading && (
+      
+      {/* Stats Loading Skeleton */}
+      {statsLoading && (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
           {[1, 2, 3].map((item) => (
             <div key={item} className="bg-gray-100 p-6 rounded-lg animate-pulse h-24"></div>
@@ -204,14 +244,12 @@ const HomePage = () => {
               <JobCard 
                 key={job.id} 
                 job={job}
-                onView={handleJobView}      
+                onDelete={handleSoftDelete}
               />
             ))}
           </div>
         )}
       </div>
-      
-
     </div>
   );
 };

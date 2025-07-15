@@ -26,4 +26,5 @@ def __str__(self):
 def soft_delete(self):
     self.status = 'inactive'
     self.save()
+    return self
     

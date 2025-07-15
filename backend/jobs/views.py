@@ -64,29 +64,33 @@ class JobDetailView(generics.RetrieveUpdateAPIView):
     
     def delete(self, request, *args, **kwargs):
         job = self.get_object()
-        job.soft_delete()
-        
+        if job.status == 'inactive':
+            return Response(
+                {"error": "Job is already inactive"},
+                status=status.HTTP_400_BAD_REQUEST
+            ) 
+        job.status = 'inactive'
+        job.save()       
         return Response(
             {"message": "Job deleted successfully"},
-            status=status.HTTP_204_NO_CONTENT
-        )
+            status=status.HTTP_200_OK        )
         
 @api_view(['PATCH'])
-def soft_delete_job(request, pk):
-    job = get_object_or_404(Job, pk=pk)
-    # job.soft_delete()
+def soft_delete_job(request, job_id):
+    job = get_object_or_404(Job, id=job_id)
     
     if job.status == 'inactive':
         return Response(
             {"error": "Job is already inactive"},
             status=status.HTTP_400_BAD_REQUEST
         )
-    job.soft_delete()
+    job.status = 'inactive'
+    job.save()
     
-    
+    serializer = JobSerializer(job)
     return Response(
         {"message": "Job soft deleted successfully"},
-        status=status.HTTP_204_NO_CONTENT
+        status=status.HTTP_200_OK
     )
 
 @api_view(['GET'])
