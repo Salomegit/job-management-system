@@ -84,4 +84,4 @@ This project is a job listing management system built using **Django REST Framew
 
 Open in browser: http://localhost:5173
 
-![alt text](image.png)
+![Job Management UI](images/image.png)
