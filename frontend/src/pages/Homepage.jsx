@@ -99,12 +99,7 @@ const HomePage = () => {
     loadStats();
   }, []);
 
-  // const handleJobView = (job) => {
-  //   setSelectedJobId(job.id);
-  //   setCurrentView('detail');
-  //   navigate(`/jobs/${job.id}`);
-  // };
-
+ 
   const handleBackToList = () => {
     setSelectedJobId(null);
     setCurrentView('list');
