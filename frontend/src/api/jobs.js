@@ -27,4 +27,18 @@ export const fetchJobById = async (jobId) => {
     }
 };
 
+export const fetchJobStats = async () => {
+  try {
+    const response = await axios.get(`${API_BASE}/jobs/stats/`);
+    if (response.status !== 200) {
+      throw new Error('Failed to fetch job stats');
+    }
+    console.log('Fetched job stats:', response.data);
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching job stats:', error);
+    throw error;
+  }
+}
+
 

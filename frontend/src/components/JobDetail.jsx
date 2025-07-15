@@ -115,17 +115,7 @@ export const JobDetail = ({ job, onBack }) => {
               </div>
             </div>
 
-            <div>
-              <h3 className="text-xl font-semibold text-gray-900 mb-4 flex items-center">
-                <CheckCircle className="h-5 w-5 mr-2 text-green-600" />
-                Requirements
-              </h3>
-              <div className="bg-gray-50 rounded-lg p-6">
-                <p className="text-gray-700 leading-relaxed">
-                  {job.requirements || 'No specific requirements listed for this position.'}
-                </p>
-              </div>
-            </div>
+
 
             {/* Additional Job Info */}
             <div className="border-t pt-6">
